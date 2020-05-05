@@ -23,29 +23,29 @@ async function getRequest() {
   try {
     response = await axios.get('https://hiroba.dqx.jp/sc/tokoyami/');
     let html = response.data;
-    html = html.replace(/\r?\n/g,""); //整形1: 改行などを削除して整形しやすくする
+    html = html.replace(/\r?\n/g,''); //整形1: 改行などを削除して整形しやすくする
     let metal = html.match(/id="metal-container" style="display: none;">(.*?)<\/div>/)[1];
     //metal = metal.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,''); //整形2: タグを削除
     //console.log(metal);
+    
     const PATH = "./docs/data.txt";
     fs.writeFileSync(PATH,metal);
 
     let item,data = [];
     let outputmsg = '\n'; 
 
-
     data = metal.split('<tr class="">');
 
     let saveData = {}; //1. saveDataを定義
 
-   for (let index = 1; index < data.length; index++) {
-        //メタル発生時 
-        item = data[index].split('class="pt0 pb0"');
-        if(item[2] && item[2].indexOf('img') != -1){
-            const time = item[1].match(/>\t\t\t\t\t\t\t\t\t\t\t(.*?)&nbsp/)[1];
-            outputmsg += time + '/' + 'メタル発生! \n';
-            saveData[time] = 'メタル発生!'; //saveDataに保存           
-        }
+  for (let index = 1; index < data.length; index++) {
+    //メタル発生時 
+    item = data[index].split('class="pt0 pb0"');
+    if(item[2] && item[2].indexOf('img') != -1){
+        const time = item[1].match(/>\t\t\t\t\t\t\t\t\t\t\t(.*?)&nbsp/)[1];
+        outputmsg += time + '/' + 'メタル発生! \n';
+        saveData[time] = 'メタル発生!'; //saveDataに保存           
+    }
   }
   
     console.log(saveData); //saveDataの中身確認
@@ -65,12 +65,11 @@ async function getRequest() {
     let now = OneHourlater + ':' + '00'
 
     if(saveData[now]){
-        responseLINENotify = await axios.request(config);
-     console.log(responseLINENotify.data);
+      responseLINENotify = await axios.request(config);
+      console.log(responseLINENotify.data);
     }else{
       console.log("ライン送らない");
- }
-
+    }
 
   } catch (error) {
     console.error(error);
